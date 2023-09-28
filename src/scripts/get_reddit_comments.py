@@ -28,31 +28,54 @@ reddit = praw.Reddit(
 
 
 # Define function to fetch recent comments from a subreddit
-def get_recent_comments(subreddit_name: str, limit: int = 25) -> List[Dict[str, str]]:
+async def get_recent_comments(
+    subreddit_name: str,
+    start_time: datetime = None,
+    end_time: datetime = None,
+    limit: int = 25,
+) -> List[Dict[str, str]]:
     """
-    Fetches the most recent comments from a specified subreddit.
+    Fetches the most recent comments from a specified subreddit and filters them by date if specified.
 
     Parameters:
     - subreddit_name (str): The name of the subreddit from which to fetch comments.
+    - start_time (str, optional): The start time of the date range eg. 2023-09-28 15:00
+    - end_time (str, optional): The end time of the date range eg. 2023-09-28 15:00
     - limit (int, optional): The maximum number of comments to fetch. Default is 25.
 
     Returns:
     - List[Dict[str, str]]: A list of dictionaries, each containing the id, text, and creation time of a comment.
     """
+
     try:
         logger.info(f"Fetching recent comments from r/{subreddit_name}...")
         subreddit = reddit.subreddit(subreddit_name)
-        logger.info(f"Comments fetched.")
-        return [
-            {
-                "id": comment.id,
-                "text": comment.body,
-                "created_utc": datetime.utcfromtimestamp(comment.created_utc).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                ),
-            }
+        comments = [
+            {"id": comment.id, "text": comment.body, "created_utc": comment.created_utc}
             for comment in subreddit.comments(limit=limit)
         ]
+
+        if start_time and end_time:
+            start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M").timestamp()
+            end_time = datetime.strptime(end_time, "%Y-%m-%d %H:%M").timestamp()
+
+            # Filter the comments based on the start and end times
+            filtered_comments = [
+                comment
+                for comment in comments
+                if start_time <= comment["created_utc"] <= end_time
+            ]
+
+            # Sort the filtered comments based on the 'created_utc' field
+            sorted_comments = sorted(
+                filtered_comments, key=lambda x: x["created_utc"], reverse=True
+            )
+            logger.info(f"Comments fetched and filtered by date range.")
+
+            return sorted_comments
+
+        else:
+            return comments
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")

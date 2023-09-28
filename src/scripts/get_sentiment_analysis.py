@@ -19,7 +19,7 @@ nltk.download("vader_lexicon")
 
 
 # Define function to analyse the sentiment of a list of comments
-def analyse_sentiments(
+async def analyse_sentiments(
     comments: List[Dict[str, Union[str, Dict]]]
 ) -> List[Dict[str, Union[str, Dict]]]:
     """
