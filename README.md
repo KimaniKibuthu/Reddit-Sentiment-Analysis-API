@@ -1,64 +1,110 @@
-# Reddit Sentiment Analysis API
+# Reddit Sentiment Analysis API Documentation
 
-Project created with MLOps-Template cookiecutter. For more info: https://mlopsstudygroup.github.io/mlops-guide/
+## Project Overview
 
-
-## 📋 Requirements
-
-* DVC
-* Python3 and pip
-* Access to IBM Cloud Object Storage
-
-## 🏃🏻 Running Project
-
-### 🔑 Setup IBM Bucket Credentials for IBM COS
-
-#### MacOS and Linux
-Setup your credentials on ```~/.aws/credentials``` and ```~/.aws/config```. DVC works perfectly with IBM Obejct Storage, although it uses S3 protocol, you can also see this in other portions of the repository.
+This project is a RESTful API developed using FastAPI to analyze sentiments of recent comments from specified subreddits using Reddit's API and the NLTK library. The comments are analyzed using VADER (Valence Aware Dictionary and sEntiment Reasoner) sentiment analysis tool provided by the NLTK library.
 
 
-~/.aws/credentials
+## Project Structure
 
-```credentials
-[default]
-aws_access_key_id = {Key ID}
-aws_secret_access_key = {Access Key}
+
+Reddit_Sentiment_Analysis_API/
+├── src/
+│   ├── __init__.py
+│   ├── scripts/
+│   │   ├── __init__.py
+|   |   ├── config.py
+│   │   ├── get_reddit_comments.py
+│   │   ├── get_sentiment_analysis.py
+│   │   ├── get_logger.py
+│   │   └── schema.py
+│   └── logs/
+├── config.json
+├── Dockerfile
+├── LICENSE
+├── main.py
+├── README.md
+└── requirements.txt
 ```
 
 
-### ✅ Pre-commit Testings
+## Setup Instructions
 
-In order to activate pre-commit testing you need ```pre-commit```
+### 1. Local Setup
 
-Installing pre-commit with pip
-```
-pip install pre-commit
-```
+1. Clone the repository to your local machine.
 
-Installing pre-commit on your local repository. Keep in mind this creates a Github Hook.
-```
-pre-commit install
-```
+    `git clone https://github.com/KimaniKibuthu/Reddit-Sentiment-Analysis-API.git`
 
-Now everytime you make a commit, it will run some tests defined on ```.pre-commit-config.yaml``` before allowing your commit.
+2. Go to https://www.reddit.com/prefs/apps. Here:
+    - Click on the tab **apps**
+    - Create app. As you create app choose **script**.
+    - Copy the CLIENT ID and the CLIENT SECRET and copy them into the respective keys in the config.json.
 
-**Example**
-```
-$ git commit -m "Example commit"
+3. Navigate to the project's root directory.
+4. Create a virtual environment of your choice eg:
+   ```bash
+   python -m venv venv
+   ```
+5. Activate the virtual environment:
+   - Windows: `.\venv\Scripts\activate`
+   - Unix/Mac: `source venv/bin/activate`
+6. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+7. Run the application:
+   ```bash
+   uvicorn main:app --reload
+   ```
 
-black....................................................................Passed
-pytest-check.............................................................Passed
-```
+   Open your browser and navigate to http://localhost:8080. You should see the FastAPI application running.
+
+### 2. Docker Setup
+
+1. Navigate to the project's root directory.
+2. Go to https://www.reddit.com/prefs/apps. Here:
+    - Click on the tab **apps**
+    - Create app. As you create app choose **script**.
+    - Copy the CLIENT ID and the CLIENT SECRET and copy them into the respective keys in the config.json.
+3. Build the Docker image:
+   ```bash
+   docker build -t reddit-api .
+   ```
+4. Run the Docker container:
+   ```bash
+   docker run -d -p 8080:8080 my-fastapi-app
+   ```
+5. Verify the Application:
+
+    Open your browser and navigate to http://localhost:8080. You should see the FastAPI application running.
+---
+
+## API Usage
+
+### Endpoint: `/analyse/{subreddit_name}?limit={limit}`
+
+- Method: `GET`
+- URL Params:
+  - `subreddit_name` (str): Name of the subreddit from which to fetch comments.
+  - `limit` (int, optional): The maximum number of comments to fetch and analyze. Default is 25, maximum is 100.
+- Sample call using curl:
+  ```bash
+  curl -X 'GET' \
+  'http://localhost:8080/analyse/programming?limit=25' \
+  -H 'accept: application/json'
+  ```
+- Sample Postman request:
+    `http://localhost:8080/analyse/programming?limit=25`
 
 
-### ⚗️ Using DVC
 
-Download data from the DVC repository(analog to ```git pull```)
-```
-dvc pull
-```
+## Logging
 
-Reproduces the pipeline using DVC
-```
-dvc repro
-```
+Logs are written to the `logs/` directory located under the `src/` directory. The logging is configured in `src/scripts/get_logger.py`.
+
+
+
+## License
+
+[MIT License](https://opensource.org/licenses/MIT)
