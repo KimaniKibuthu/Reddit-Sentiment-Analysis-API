@@ -7,7 +7,7 @@ This project is a RESTful API developed using FastAPI to analyze sentiments of r
 
 ## Project Structure
 
-
+```
 Reddit_Sentiment_Analysis_API/
 ├── src/
 │   ├── __init__.py
@@ -98,6 +98,13 @@ Reddit_Sentiment_Analysis_API/
     `http://localhost:8080/analyse/programming?limit=25`
 
 
+### Example Response
+
+The response will be as follows:
+```
+
+
+```
 
 ## Logging
 
